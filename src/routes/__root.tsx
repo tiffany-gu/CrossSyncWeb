@@ -77,14 +77,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Dashboard — CrossSync Agent" },
+      { name: "description", content: "Real-time synchronization status between your Lovable web app and Replit mobile app." },
+      { name: "author", content: "CrossSync" },
+      { property: "og:title", content: "Dashboard — CrossSync Agent" },
+      { property: "og:description", content: "Real-time synchronization status between your Lovable web app and Replit mobile app." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Dashboard — CrossSync Agent" },
+      { name: "twitter:description", content: "Real-time synchronization status between your Lovable web app and Replit mobile app." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/af128020-788a-4c9b-9c81-0eec4bca02c1/id-preview-27321403--c133039d-1701-47d4-a255-11ef34020b8a.lovable.app-1783046017187.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/af128020-788a-4c9b-9c81-0eec4bca02c1/id-preview-27321403--c133039d-1701-47d4-a255-11ef34020b8a.lovable.app-1783046017187.png" },
     ],
     links: [
       {
