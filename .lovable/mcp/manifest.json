@@ -1,0 +1,483 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "crosssync-mcp",
+      "version": "0.2.0",
+      "title": "CrossSync — Lovable × Replit MCP"
+    },
+    "tools": [
+      {
+        "name": "list_recent_changes",
+        "title": "List recent Lovable changes",
+        "description": "Return the most recent saved changes detected on the Lovable web app, including source/target platforms, change type, agent action, result, and timestamp. Use this to understand what has recently changed on Lovable before syncing to Replit.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991,
+              "description": "Maximum number of change entries to return. Defaults to 20 if omitted."
+            },
+            "platform": {
+              "type": "string",
+              "enum": [
+                "lovable",
+                "replit",
+                "all"
+              ],
+              "description": "Filter by source platform. 'all' returns changes originating on either platform."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_design_tokens",
+        "title": "Get Lovable design tokens",
+        "description": "Return the CrossSync Agent design system tokens defined in the Lovable web app: color palette (oklch), radius scale, typography, spacing scale, and motion primitives. Use this to keep the Replit mobile app visually aligned with the Lovable web app.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "group": {
+              "type": "string",
+              "enum": [
+                "all",
+                "colors",
+                "radius",
+                "typography",
+                "spacingScale",
+                "motion"
+              ],
+              "description": "Which token group to return. 'all' returns every group."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_component_hierarchy",
+        "title": "Get Lovable component hierarchy",
+        "description": "Return the Lovable web app's UI hierarchy: app shell, per-page component trees, and shared component modules. Use this to map web components to equivalent Replit mobile components.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "string",
+              "enum": [
+                "all",
+                "shell",
+                "pages",
+                "sharedComponents"
+              ],
+              "description": "Which slice of the hierarchy to return. 'all' returns everything."
+            },
+            "route": {
+              "type": "string",
+              "description": "If provided, return only the component tree for this route (e.g. '/', '/activity')."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_pages",
+        "title": "Get Lovable pages",
+        "description": "Return the list of pages in the Lovable web app: URL path, human name, and the mobile screen they map to on Replit. Use this to discover which page a change belongs to before mapping updates.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "If provided, return only the page matching this path (e.g. '/checkout')."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_routes",
+        "title": "Get Lovable routes",
+        "description": "Return the Lovable web app's routing table: path, file, and layout parent. Use this to understand navigation structure before proposing mobile navigation changes.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "includeApi": {
+              "type": "boolean",
+              "description": "Include API/server routes."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_prompts",
+        "title": "Get recent Lovable prompts/instructions",
+        "description": "Return the recent design/build instructions given to Lovable — the human intent behind each save. Use this to understand *why* a change was made, not just what changed, when planning the mobile equivalent.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "string",
+              "description": "Filter to prompts targeting this page (e.g. '/checkout' or 'global')."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991,
+              "description": "Maximum entries to return. Defaults to 10."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "apply_component_update",
+        "title": "Apply a Lovable component update",
+        "description": "Apply a proposed update to a Lovable page or component. In this demo build the change is simulated and echoed back with a diff preview and a synthetic commit id; a production build would route through Lovable's project editor.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "Target file, e.g. 'src/routes/checkout.tsx' or 'src/components/Header.tsx'."
+            },
+            "summary": {
+              "type": "string",
+              "description": "Short summary of the change to apply."
+            },
+            "diff": {
+              "type": "string",
+              "description": "Unified diff or a before/after snippet describing the intended change."
+            },
+            "dryRun": {
+              "type": "boolean",
+              "description": "If true, validate without persisting. Defaults to true in this environment."
+            }
+          },
+          "required": [
+            "file",
+            "summary",
+            "diff"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "validate_design_consistency",
+        "title": "Validate design consistency",
+        "description": "Run the design consistency checklist across the Lovable web app: typography, color, button hierarchy, spacing, navigation patterns, form controls, loading/error/empty states, and mobile responsiveness. Returns per-check status, severity, and suggested fix.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "only": {
+              "type": "string",
+              "enum": [
+                "all",
+                "failing",
+                "warnings"
+              ],
+              "description": "Filter which checks to return."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_get_file_tree",
+        "title": "Replit — get file tree",
+        "description": "Return the Replit mobile app's file tree grouped by directory. Use this to locate mobile equivalents of Lovable files.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "prefix": {
+              "type": "string",
+              "description": "Only return entries under this prefix (e.g. 'screens/')."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_get_changed_files",
+        "title": "Replit — get changed files",
+        "description": "Return files changed in the Replit mobile app since the last sync, with added/removed line counts and timestamps.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "since": {
+              "type": "string",
+              "description": "ISO date or relative window (e.g. '24h', '7d'). Defaults to 7d."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_get_mobile_components",
+        "title": "Replit — get mobile components",
+        "description": "Return the Replit mobile app's component list with file paths and their web equivalents on Lovable. Use this to select the right target component when applying a mapping.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Filter by component name (case-insensitive substring)."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_get_navigation_files",
+        "title": "Replit — get navigation files",
+        "description": "Return the Replit mobile app's navigation configuration: bottom tabs, stack screens, and deep-linking config. Use this before proposing navigation changes so the mapping doesn't break existing screens.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_get_package_files",
+        "title": "Replit — get package files",
+        "description": "Return the Replit mobile app's package.json and app.json so the agent can check dependency versions, native config, and available scripts before proposing a change.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_get_build_logs",
+        "title": "Replit — get build logs",
+        "description": "Return the most recent Replit build's stdout/stderr and its status. Use this to diagnose failures before proposing a fix.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "which": {
+              "type": "string",
+              "enum": [
+                "latest",
+                "previousFailed"
+              ],
+              "description": "Which log to return."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_apply_code_change",
+        "title": "Replit — apply code change",
+        "description": "Apply a code change to a file in the Replit mobile app. In this demo build the change is simulated; a production build would commit via the Replit API. Riskier changes should be gated behind human review before calling this tool.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "Target file path (e.g. 'screens/Checkout.tsx')."
+            },
+            "summary": {
+              "type": "string",
+              "description": "Short summary of the change."
+            },
+            "patch": {
+              "type": "string",
+              "description": "Unified diff or before/after snippet."
+            },
+            "dryRun": {
+              "type": "boolean",
+              "description": "If true, validate without writing. Defaults to true in this environment."
+            },
+            "mappingRule": {
+              "type": "string",
+              "description": "The mapping rule that produced this change (e.g. 'Multi-column grid → stacked cards')."
+            }
+          },
+          "required": [
+            "file",
+            "summary",
+            "patch"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_run_build",
+        "title": "Replit — run build",
+        "description": "Trigger a Replit mobile app build (iOS + Android). Returns a simulated build id, status, duration, and log tail.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "platform": {
+              "type": "string",
+              "enum": [
+                "ios",
+                "android",
+                "both"
+              ],
+              "description": "Which platform(s) to build. Defaults to 'both'."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_run_tests",
+        "title": "Replit — run tests",
+        "description": "Run the Replit mobile app's test suite (unit + e2e). Returns per-suite pass/fail counts and any failure details.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "suite": {
+              "type": "string",
+              "enum": [
+                "unit",
+                "e2e",
+                "all"
+              ],
+              "description": "Which suite to run. Defaults to 'all'."
+            },
+            "filter": {
+              "type": "string",
+              "description": "Optional test name filter."
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "replit_run_lint",
+        "title": "Replit — run lint",
+        "description": "Run ESLint + TypeScript checks on the Replit mobile app. Returns per-file errors, warnings, and any suggested fixes.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "fix": {
+              "type": "boolean",
+              "description": "Whether to apply auto-fixable issues. Defaults to false."
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

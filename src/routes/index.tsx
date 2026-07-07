@@ -1,24 +1,149 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { AppShell, PageHeader } from "@/components/crosssync/app-shell";
+import { Card } from "@/components/ui/card";
+import { PlatformCard } from "@/components/crosssync/platform-card";
+import { SyncConnector } from "@/components/crosssync/sync-connector";
+import { AgentProgress } from "@/components/crosssync/agent-progress";
+import { ActivityItem } from "@/components/crosssync/activity-item";
+import { StatusBadge, StatusDot } from "@/components/crosssync/status-badge";
+import { activity, agentSteps, globalStatus, platforms, quickStats } from "@/data/sample";
+import { ArrowRight, Play, RefreshCw } from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Dashboard — CrossSync Agent" },
+      { name: "description", content: "Real-time synchronization status between your Lovable web app and Replit mobile app." },
+    ],
+  }),
+  component: Dashboard,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const heroTone: Record<typeof globalStatus.state, "success" | "info" | "primary" | "warning" | "danger"> = {
+  "in-sync": "success",
+  "lovable-changed": "info",
+  "replit-changed": "info",
+  "agent-running": "primary",
+  "review-required": "warning",
+  "sync-failed": "danger",
+};
+
+const heroLabel: Record<typeof globalStatus.state, string> = {
+  "in-sync": "In Sync",
+  "lovable-changed": "Lovable Changed",
+  "replit-changed": "Replit Changed",
+  "agent-running": "Agent Running",
+  "review-required": "Human Review Required",
+  "sync-failed": "Sync Failed",
+};
+
+function Dashboard() {
+  const tone = heroTone[globalStatus.state];
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
+    <AppShell>
+      <PageHeader
+        title="Sync Overview"
+        description="Real-time status of design and feature parity between Lovable web and Replit mobile."
+        actions={
+          <>
+            <button className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-card px-3 text-sm font-medium hover:bg-accent">
+              <RefreshCw className="h-3.5 w-3.5" /> Re-scan
+            </button>
+            <button className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              <Play className="h-3.5 w-3.5" /> Run sync
+            </button>
+          </>
+        }
       />
-    </div>
+
+      {/* Hero sync status */}
+      <Card className="mb-6 overflow-hidden p-0">
+        <div className="flex flex-wrap items-center gap-6 p-6">
+          <div className="flex items-center gap-4">
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <StatusDot tone={tone} pulse />
+              <div className="ml-2 h-3 w-3 rounded-full bg-primary/70" />
+            </div>
+            <div>
+              <StatusBadge tone={tone}>{heroLabel[globalStatus.state]}</StatusBadge>
+              <div className="mt-2 text-lg font-semibold tracking-tight">{globalStatus.headline}</div>
+              <div className="mt-1 text-sm text-muted-foreground">{globalStatus.detail}</div>
+            </div>
+          </div>
+          <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+            Updated {globalStatus.since}
+            <Link to="/activity" className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
+              View activity <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      </Card>
+
+      {/* Quick stats */}
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {quickStats.map((s) => (
+          <Card key={s.label} className="p-4">
+            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{s.label}</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums">{s.value}</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">{s.hint}</div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Platform pair */}
+      <div className="mb-6 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[1fr_auto_1fr]">
+        <PlatformCard
+          platform="lovable"
+          name={platforms.lovable.name}
+          type={platforms.lovable.type}
+          lastSaved={platforms.lovable.lastSaved}
+          detectedChange={platforms.lovable.detectedChange}
+          syncBadge="Changed"
+          syncTone="info"
+          context={platforms.lovable.context}
+        />
+        <SyncConnector active />
+        <PlatformCard
+          platform="replit"
+          name={platforms.replit.name}
+          type={platforms.replit.type}
+          lastSaved={platforms.replit.lastSaved}
+          detectedChange={platforms.replit.detectedChange}
+          syncBadge="Waiting"
+          syncTone="neutral"
+          context={platforms.replit.context}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_1fr]">
+        {/* Agent Progress */}
+        <Card className="p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-semibold">Agent Progress</h2>
+              <p className="text-xs text-muted-foreground">Current sync from Lovable → Replit</p>
+            </div>
+            <StatusBadge tone="primary" icon={<StatusDot tone="primary" pulse />}>Running</StatusBadge>
+          </div>
+          <AgentProgress steps={agentSteps} />
+        </Card>
+
+        {/* Recent activity */}
+        <Card className="p-0">
+          <div className="flex items-center justify-between border-b p-5">
+            <div>
+              <h2 className="text-base font-semibold">Recent Sync Activity</h2>
+              <p className="text-xs text-muted-foreground">Last 5 events across both platforms</p>
+            </div>
+            <Link to="/activity" className="text-xs font-medium text-primary hover:underline">View all</Link>
+          </div>
+          <div className="divide-y">
+            {activity.slice(0, 5).map((item) => (
+              <ActivityItem key={item.id} item={item} />
+            ))}
+          </div>
+        </Card>
+      </div>
+    </AppShell>
   );
 }
