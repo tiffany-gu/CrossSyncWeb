@@ -6,8 +6,8 @@ import { SyncConnector } from "@/components/crosssync/sync-connector";
 import { AgentProgress } from "@/components/crosssync/agent-progress";
 import { ActivityItem } from "@/components/crosssync/activity-item";
 import { StatusBadge, StatusDot } from "@/components/crosssync/status-badge";
-import { activity, agentSteps, globalStatus, platforms, quickStats } from "@/data/sample";
-import { ArrowRight, Play, RefreshCw } from "lucide-react";
+import { activity, agentSteps, designChecks, globalStatus, platforms, quickStats } from "@/data/sample";
+import { ArrowRight, CheckCircle2, AlertTriangle, XCircle, Palette, Play, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -144,6 +144,86 @@ function Dashboard() {
           </div>
         </Card>
       </div>
+
+      {/* Design consistency summary */}
+      {(() => {
+        const passing = designChecks.filter((c) => c.status === "pass").length;
+        const warnings = designChecks.filter((c) => c.status === "warn").length;
+        const failing = designChecks.filter((c) => c.status === "fail").length;
+        const total = designChecks.length;
+        const score = Math.round((passing / total) * 100);
+        const attention = designChecks
+          .filter((c) => c.status !== "pass")
+          .sort((a, b) => (a.status === "fail" ? -1 : b.status === "fail" ? 1 : 0))
+          .slice(0, 3);
+        return (
+          <Card className="mt-6 p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Palette className="h-4 w-4 text-primary" />
+                <div>
+                  <h2 className="text-base font-semibold">Design Consistency</h2>
+                  <p className="text-xs text-muted-foreground">Parity between web and mobile design systems</p>
+                </div>
+              </div>
+              <Link to="/design" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                Open report <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Parity score</div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums">{score}%</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{passing}/{total} checks passing</div>
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <CheckCircle2 className="h-3 w-3 text-success" /> Passing
+                </div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{passing}</div>
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <AlertTriangle className="h-3 w-3 text-warning" /> Warnings
+                </div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums text-warning">{warnings}</div>
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <XCircle className="h-3 w-3 text-danger" /> Failing
+                </div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums text-danger">{failing}</div>
+              </div>
+            </div>
+
+            {attention.length > 0 && (
+              <div className="mt-4">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Needs attention
+                </div>
+                <ul className="divide-y rounded-lg border">
+                  {attention.map((c) => (
+                    <li key={c.name} className="flex items-center justify-between gap-3 p-3 text-sm">
+                      <div className="flex min-w-0 items-center gap-2">
+                        {c.status === "fail" ? (
+                          <XCircle className="h-3.5 w-3.5 shrink-0 text-danger" />
+                        ) : (
+                          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-warning" />
+                        )}
+                        <span className="truncate font-medium">{c.name}</span>
+                      </div>
+                      <StatusBadge tone={c.severity === "High" ? "danger" : c.severity === "Medium" ? "warning" : "neutral"}>
+                        {c.severity}
+                      </StatusBadge>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Card>
+        );
+      })()}
     </AppShell>
   );
 }
