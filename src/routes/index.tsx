@@ -6,8 +6,8 @@ import { SyncConnector } from "@/components/crosssync/sync-connector";
 import { AgentProgress } from "@/components/crosssync/agent-progress";
 import { ActivityItem } from "@/components/crosssync/activity-item";
 import { StatusBadge, StatusDot } from "@/components/crosssync/status-badge";
-import { activity, agentSteps, globalStatus, platforms, quickStats } from "@/data/sample";
-import { ArrowRight, Play, RefreshCw } from "lucide-react";
+import { activity, agentSteps, designChecks, globalStatus, platforms, quickStats } from "@/data/sample";
+import { ArrowRight, CheckCircle2, AlertTriangle, XCircle, Palette, Play, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
