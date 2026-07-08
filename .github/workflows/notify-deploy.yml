@@ -18,3 +18,19 @@ jobs:
           echo "Deployment notification triggered for ${{ github.repository }}"
           echo "Commit: ${{ github.sha }}"
           echo "Ref: ${{ github.ref }}"
+
+      - name: Refresh web MCP endpoint
+        env:
+          REFRESH_URL: ${{ vars.WEB_REFRESH_URL || 'https://app.example.com/mcp/refresh' }}
+        run: |
+          echo "Triggering web refresh endpoint: $REFRESH_URL"
+          status=$(curl -sS -o /tmp/refresh-response.txt -w "%{http_code}" \
+            -X POST "$REFRESH_URL" \
+            -H "Content-Type: application/json" \
+            -d "{\"commit\":\"${{ github.sha }}\",\"ref\":\"${{ github.ref }}\",\"repository\":\"${{ github.repository }}\"}" \
+            || echo "000")
+          echo "Refresh endpoint responded with HTTP $status"
+          cat /tmp/refresh-response.txt || true
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::warning::Web refresh endpoint returned non-2xx status ($status)"
+          fi
