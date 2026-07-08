@@ -1,0 +1,20 @@
+name: Notify Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  notify-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Notify deploy
+        run: |
+          echo "Deployment notification triggered for ${{ github.repository }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Ref: ${{ github.ref }}"
