@@ -5,8 +5,9 @@ import { PlatformCard } from "@/components/crosssync/platform-card";
 import { SyncConnector } from "@/components/crosssync/sync-connector";
 import { AgentProgress } from "@/components/crosssync/agent-progress";
 import { ActivityItem } from "@/components/crosssync/activity-item";
+import { ReviewQueueItem } from "@/components/crosssync/review-queue-item";
 import { StatusBadge, StatusDot } from "@/components/crosssync/status-badge";
-import { activity, agentSteps, globalStatus, platforms, quickStats } from "@/data/sample";
+import { activity, agentSteps, globalStatus, platforms, quickStats, reviewQueue } from "@/data/sample";
 import { ArrowRight, Play, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -39,6 +40,8 @@ const heroLabel: Record<typeof globalStatus.state, string> = {
 
 function Dashboard() {
   const tone = heroTone[globalStatus.state];
+  const pendingReviews = reviewQueue.length;
+  const highPriority = reviewQueue.filter((r) => r.priority === "High").length;
   return (
     <AppShell>
       <PageHeader
@@ -114,6 +117,29 @@ function Dashboard() {
           context={platforms.replit.context}
         />
       </div>
+
+      {/* Change Review Queue */}
+      <Card className="mb-6 p-0">
+        <div className="flex items-center justify-between border-b p-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold">Change Review Queue</h2>
+              <StatusBadge tone="warning">{pendingReviews}</StatusBadge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {pendingReviews} pending change{pendingReviews === 1 ? "" : "s"} awaiting verification · {highPriority} high priority
+            </p>
+          </div>
+          <Link to="/review" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+            View all <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
+          {reviewQueue.map((item) => (
+            <ReviewQueueItem key={item.id} item={item} />
+          ))}
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_1fr]">
         {/* Agent Progress */}
