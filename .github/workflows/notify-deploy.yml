@@ -21,7 +21,7 @@ jobs:
 
       - name: Refresh web MCP endpoint
         env:
-          REFRESH_URL: ${{ vars.WEB_REFRESH_URL || 'https://app.example.com/mcp/refresh' }}
+          REFRESH_URL: ${{ vars.WEB_REFRESH_URL || 'https://app.example.com/api/crosssync/refresh' }}
         run: |
           echo "Triggering web refresh endpoint: $REFRESH_URL"
           status=$(curl -sS -o /tmp/refresh-response.txt -w "%{http_code}" \
